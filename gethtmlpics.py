@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 #-*- coding: utf-8 -*-
 
 import re
@@ -28,7 +29,7 @@ class MyHTMLParser(HTMLParser):
         if tag == 'img':
             pics = re.compile(r'^http[s]?://(.*)\.(?:gif|jpg|jpeg|png|bmp)$')
             for k, v in attrs:
-                if k == 'src' and pics.match(v):
+                if (k == 'src' or k == 'data-src') and pics.match(v):
                     self.picURLs.append(v)
         if tag == 'head':
             self.in_head = True
@@ -65,13 +66,13 @@ if __name__ == "__main__":
     pics_counter = 0
     expected_amount = 0
 
-    #Input URL which contain the PICS:
+    # Input URL which contain the PICS:
     while(True):
         clurl = raw_input("Please Enter the URL:")
         if clurl != None and len(clurl.strip()) > 0:
             break
 
-    #clurl = "http://ac.postcc.us/htm_data/7/1801/2949387.html"
+    #clurl = "http://www.baidu.com"
     #page_uri = clurl.split("/")[-1]
     #page_name = page_uri.split(".")[0]
     #print("S:  %s" %page_name)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     #print("CMD:%s" %cmd)
     #os.system(cmd)
 
-    #Get HTML Page online:
+    # Get HTML Page online:
     hdr = {'User-Agent':'Mozilla/5.0'}
     request = urllib2.Request(clurl, headers = hdr)
     response = urllib2.urlopen(request)
@@ -93,6 +94,7 @@ if __name__ == "__main__":
     #with open(file_uri, 'r') as f:
     #    parser.feed(f.read())
 
+	# Prepare the storage dir:
     page_title = parser.get_title()
     print(highlight_yellow)
     print(page_title)
@@ -103,12 +105,12 @@ if __name__ == "__main__":
         os.mkdir(storage_path)
     os.chdir(storage_path)
 
-    #Download the PICS by wget:
-	#expected_amount = len(parser.get_picURLs())
+    # Download the Pics by wget:
+    expected_amount = len(parser.get_picURLs())
     for url in parser.get_picURLs():
         pics_counter += 1
         print(highlight_red)
-        print("Fetching picture No. %s of %s..." % pics_counter, expected_amount)
+        print("Fetching picture No. %s of %s..." % (pics_counter, expected_amount))
         print(default_color)
         os.system("wget" + " " + url)
 
